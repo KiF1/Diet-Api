@@ -29,8 +29,8 @@ export async function mealsRoutes(app: FastifyInstance){
     const { sessionId } = request.cookies;
     const meals = await knex('meals').where('session_id', sessionId);
     const totalMeals = meals.length;
-    const mealsInDiet = meals.filter((meal) => meal.inDiet === true).length;
-    const mealsOffDiet = meals.filter((meal) => meal.inDiet === false).length;
+    const mealsInDiet = meals.filter((meal) => meal.inDiet === 1).length;
+    const mealsOffDiet = meals.filter((meal) => meal.inDiet === 0).length;
     const maxOfMealsFollowedInDiet = meals.reduce(({ currentMeal, maxInDiet }, { inDiet }) => {
       return {
         currentMeal: inDiet ? currentMeal + 1 : 0,

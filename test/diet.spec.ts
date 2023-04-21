@@ -57,7 +57,7 @@ describe('Meals routes', () => {
       const listMealsResponse = await request(app.server).get('/meals').set('Cookie', cookies).expect(200);
       const mealId = listMealsResponse.body.meals[0].id;
       const getMealResponse = await request(app.server).get(`/meals/${mealId}`).set('Cookie', cookies).expect(200);
-      expect(getMealResponse.body.meals).toEqual(
+      expect(getMealResponse.body.meal).toEqual(
         expect.objectContaining({
           name: 'Hamburguer',
           description: 'Hamburguer de picanha',
@@ -71,7 +71,7 @@ describe('Meals routes', () => {
         description: 'Hamburguer de picanha',
         date: '18/02/2023',
         hour: '16:30',
-        inDiet: true
+        inDiet: false
     })
     const cookies = createMealResponse.get('Set-Cookie');
     await request(app.server).post('/meals').set('Cookie', cookies).send({
@@ -79,7 +79,7 @@ describe('Meals routes', () => {
         description: 'Pizza de calabresa',
         date: '18/02/2023',
         hour: '16:30',
-        inDiet: false
+        inDiet: true
     })
     await request(app.server).post('/meals').set('Cookie', cookies).send({
       name: 'Batata Doce',
@@ -89,11 +89,11 @@ describe('Meals routes', () => {
         inDiet: true
     })
     const summaryResponse = await request(app.server).get('/meals/summary').set('Cookie', cookies).expect(200);
-    expect(summaryResponse.body.summary).toEqual({
+    expect(summaryResponse.body).toEqual({
       totalMeals: 3,
-      mealsInDiet: 1,
-      mealsOffDiet: 2,
-      maxOfMealsFollowedInDiet: 1
+      mealsInDiet: 2,
+      mealsOffDiet: 1,
+      maxOfMealsFollowedInDiet: 2
     })
  })
 
@@ -108,13 +108,20 @@ describe('Meals routes', () => {
     const cookies = createMealResponse.get('Set-Cookie');
     const listMealsResponse = await request(app.server).get('/meals').set('Cookie', cookies).expect(200);
     const mealId = listMealsResponse.body.meals[0].id;
-    await request(app.server).put(`/meals/${mealId}`).send({
+    await request(app.server).put(`/meals/${mealId}`).set('Cookie', cookies).send({
       name: 'Sanduíche',
       description: 'Sanduíche de frango',
       date: '18/02/2023',
       hour: '16:30',
       inDiet: true
-    }).expect(200)
+    }).expect(200);
+    const getMealResponse = await request(app.server).get(`/meals/${mealId}`).set('Cookie', cookies).expect(200);
+      expect(getMealResponse.body.meal).toEqual(
+        expect.objectContaining({
+          name: 'Sanduíche',
+          description: 'Sanduíche de frango',
+        })
+      )
   })
 
   it('Shoud be able to delete a specific Meal', async () => {
@@ -128,6 +135,6 @@ describe('Meals routes', () => {
     const cookies = createMealResponse.get('Set-Cookie');
     const listMealsResponse = await request(app.server).get('/meals').set('Cookie', cookies).expect(200);
     const mealId = listMealsResponse.body.meals[0].id;
-    await request(app.server).delete(`/meals/${mealId}`).expect(204)
+    await request(app.server).delete(`/meals/${mealId}`).set('Cookie', cookies).expect(204)
   })
 })
